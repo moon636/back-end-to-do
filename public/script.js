@@ -16,11 +16,27 @@ const getTodos = async () => {
             li.textContent = todo.text;
             li.dataset.id = todo.id; // Store the ID in a data attribute
 
+            // Style completed todos
+            if (todo.completed) {
+                li.style.textDecoration = 'line-through';
+                li.style.color = '#888';
+            } else {
+                li.style.textDecoration = 'none';
+                li.style.color = '';
+            }
+
+            // Complete button
+            const completeBtn = document.createElement('button');
+            completeBtn.textContent = 'Complete';
+            completeBtn.classList.add('complete-btn');
+            li.appendChild(completeBtn);
+
+            // Delete button
             const deleteBtn = document.createElement('button');
             deleteBtn.textContent = 'Delete';
             deleteBtn.classList.add('delete-btn');
-
             li.appendChild(deleteBtn);
+
             todoList.appendChild(li);
         });
     } catch (error) {
@@ -61,6 +77,18 @@ todoList.addEventListener('click', async (e) => {
             getTodos(); // Refresh the list
         } catch (error) {
             console.error('Failed to delete todo:', error);
+        }
+    }
+
+    if (e.target.classList.contains('complete-btn')) {
+        const id = e.target.parentElement.dataset.id;
+        try {
+            await fetch(`/api/todos/${id}`, {
+                method: 'PATCH',
+            });
+            getTodos(); // Refresh the list
+        } catch (error) {
+            console.error('Failed to toggle complete todo:', error);
         }
     }
 });
